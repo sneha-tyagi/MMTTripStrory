@@ -1,0 +1,507 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TripMakers Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --ink:#0B1F3A; --ink-2:#16325C;
+    --ground:#F4F6FA; --surface:#FFFFFF; --panel:#F7F9FD;
+    --line:#E7ECF4; --line-2:#DBE3EF;
+    --muted:#5A6B85; --muted-2:#93A3BC;
+    --blue:#0A6FFF; --blue-ink:#0A55C8; --blue-wash:#E8F1FF;
+    --coral:#FF5A3C; --coral-ink:#C8371A; --coral-wash:#FFF0EC;
+    --amber:#F7A600; --amber-ink:#7A5000; --amber-wash:#FFF6E3;
+    --green:#0E8A5F; --green-ink:#0B6B4A; --green-wash:#EAF6F0;
+    --sans:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+    --disp:'Bricolage Grotesque','Plus Jakarta Sans',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink);
+    background:radial-gradient(1100px 700px at 50% -8%,#12294a,#0a1526 62%);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,p{margin:0;}
+  button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  #stageWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  #stage{width:392px;height:812px;transform-origin:center center;}
+
+  /* ---- phone shell ---- */
+  .phone{width:392px;height:812px;background:#000;border-radius:46px;padding:11px;
+    box-shadow:0 40px 90px rgba(4,10,22,.6),0 0 0 2px rgba(255,255,255,.04);position:relative;}
+  .glass{position:absolute;inset:11px;border-radius:36px;overflow:hidden;background:var(--ground);}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:118px;height:26px;background:#000;border-radius:0 0 16px 16px;z-index:40;}
+
+  .status{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 24px 6px;font-size:12px;font-weight:700;color:var(--ink);z-index:30;pointer-events:none;}
+  .status .r{display:flex;gap:5px;align-items:center;}
+
+  .viewport{position:absolute;inset:0;}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--ground);}
+  .screen.active{display:flex;animation:sl .32s cubic-bezier(.3,.7,.2,1);}
+  @keyframes sl{from{opacity:.4;transform:translateX(10px);} to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){.screen.active{animation:none;}}
+
+  .head{padding:48px 18px 10px;display:flex;align-items:center;gap:10px;flex:0 0 auto;background:var(--ground);}
+  .head.ink{background:var(--ink);}
+  .iconbtn{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;}
+  .iconbtn.ghost{background:rgba(255,255,255,.12);color:#fff;}
+  .head .htitle{font-family:var(--disp);font-size:20px;font-weight:800;letter-spacing:-.02em;}
+  .body{flex:1 1 auto;overflow-y:auto;padding:6px 18px 20px;display:flex;flex-direction:column;gap:14px;}
+  .body::-webkit-scrollbar{width:0;}
+
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);}
+
+  /* stepper */
+  .stepper{display:flex;align-items:center;gap:6px;flex:1 1 auto;}
+  .stepper .st{display:flex;align-items:center;gap:6px;}
+  .stepper .sd{width:22px;height:22px;border-radius:50%;background:var(--line-2);color:#fff;font-size:11px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stepper .sl{font-size:12px;font-weight:700;color:var(--muted-2);}
+  .stepper .st.on .sd{background:var(--blue);} .stepper .st.on .sl{color:var(--ink);}
+  .stepper .st.done .sd{background:var(--green);} .stepper .bar{flex:1;height:2px;background:var(--line-2);border-radius:2px;min-width:10px;}
+
+  /* buttons */
+  .btn{height:56px;border-radius:16px;background:var(--blue);color:#fff;font-size:16px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;}
+  .btn:active{transform:translateY(1px);}
+  .btn.dark{background:var(--ink);} .btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line-2);}
+  .btn.coral{background:var(--coral);}
+  .sticky{flex:0 0 auto;padding:12px 18px 26px;background:linear-gradient(180deg,rgba(244,246,250,0),var(--ground) 30%);}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;}
+  .tap{transition:transform .1s;} .tap:active{transform:scale(.985);}
+
+  /* bottom nav */
+  .tabbar{flex:0 0 auto;height:76px;background:var(--surface);border-top:1px solid var(--line);
+    display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding-bottom:12px;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted-2);font-size:10.5px;font-weight:700;white-space:nowrap;}
+  .tab.on{color:var(--blue);}
+  .tab .fab{width:52px;height:52px;border-radius:18px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;
+    margin-top:-18px;box-shadow:0 8px 20px rgba(10,111,255,.4);}
+
+  /* ---------- S1 home ---------- */
+  .earn{background:linear-gradient(135deg,#ff5a3c,#ff7a33);border-radius:20px;padding:17px 18px;color:#fff;position:relative;overflow:hidden;}
+  .earn .lbl{font-size:12px;font-weight:700;color:rgba(255,255,255,.9);}
+  .earn .big{font-family:var(--disp);font-size:34px;font-weight:800;letter-spacing:-.03em;margin-top:2px;}
+  .earn .sub{font-size:12px;font-weight:600;color:rgba(255,255,255,.92);margin-top:4px;display:flex;align-items:center;gap:5px;}
+  .earn .coin{position:absolute;right:-14px;top:-14px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.12);}
+
+  .storycard{display:flex;gap:12px;align-items:center;padding:12px;}
+  .thumb{width:56px;height:56px;border-radius:14px;flex-shrink:0;overflow:hidden;}
+  .badge{font-size:10px;font-weight:800;letter-spacing:.03em;border-radius:6px;padding:3px 7px;display:inline-block;}
+  .badge.live{background:var(--green-wash);color:var(--green-ink);}
+  .badge.draft{background:var(--panel);color:var(--muted);border:1px solid var(--line-2);}
+
+  /* ---------- S2 choose ---------- */
+  .choice{padding:18px;display:flex;gap:14px;align-items:flex-start;position:relative;}
+  .choice .ci{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .choice h3{font-size:17px;font-weight:800;padding-right:62px;}
+  .choice p{font-size:13px;line-height:1.45;color:var(--muted);margin-top:4px;}
+  .rec{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;color:var(--amber-ink);background:var(--amber-wash);border-radius:6px;padding:3px 7px;}
+
+  /* ---------- S3 build ---------- */
+  .daychips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+  .daychips::-webkit-scrollbar{height:0;}
+  .daychip{flex-shrink:0;height:40px;padding:0 15px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line-2);
+    font-size:13px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;}
+  .daychip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .daychip.add{color:var(--blue);border-style:dashed;border-color:#a9c6f5;width:44px;padding:0;justify-content:center;}
+
+  .titem{display:flex;gap:10px;align-items:center;}
+  .titem .tm{width:44px;font-size:12px;font-weight:800;color:var(--ink-2);flex-shrink:0;text-align:right;}
+  .titem .tc{flex:1;display:flex;gap:11px;align-items:center;padding:12px;}
+  .titem .ti{width:40px;height:40px;border-radius:12px;background:var(--panel);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .titem .tt{flex:1;min-width:0;} .titem .tt b{font-size:13.5px;font-weight:700;display:block;}
+  .titem .tt span{font-size:11.5px;color:var(--muted);}
+  .titem .tp{font-size:13px;font-weight:800;white-space:nowrap;}
+  .titem .grab{color:var(--muted-2);}
+  .addrow{height:52px;border-radius:14px;border:1.5px dashed #b9c6d9;background:var(--surface);color:var(--blue);
+    display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;}
+
+  /* ---------- add sheet ---------- */
+  .scrim{position:absolute;inset:0;background:rgba(9,18,32,.5);z-index:50;display:none;}
+  .scrim.show{display:block;animation:fd .2s;}
+  @keyframes fd{from{opacity:0;}to{opacity:1;}}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;z-index:51;
+    padding:10px 18px 28px;transform:translateY(110%);visibility:hidden;
+    transition:transform .32s cubic-bezier(.3,.8,.2,1),visibility .32s;}
+  .sheet.show{transform:none;visibility:visible;}
+  .grab{width:40px;height:5px;border-radius:3px;background:var(--line-2);margin:0 auto 12px;}
+  .typegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .type{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 4px;border-radius:14px;background:var(--panel);border:1px solid var(--line);}
+  .type .ty{width:40px;height:40px;border-radius:12px;background:var(--surface);color:var(--ink-2);display:flex;align-items:center;justify-content:center;}
+  .type span{font-size:11px;font-weight:700;color:var(--ink-2);}
+
+  /* ---------- S5 publish ---------- */
+  .cover{height:150px;border-radius:18px;position:relative;overflow:hidden;}
+  .cover .cbtn{position:absolute;right:12px;bottom:12px;height:36px;padding:0 13px;border-radius:11px;background:rgba(11,31,58,.82);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .field{display:flex;flex-direction:column;gap:7px;}
+  .field label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.02em;}
+  .input{height:52px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--surface);padding:0 14px;
+    font-size:15px;font-weight:700;color:var(--ink);display:flex;align-items:center;}
+  .row{display:flex;align-items:center;gap:12px;padding:14px;}
+  .toggle{width:50px;height:30px;border-radius:999px;background:var(--green);padding:3px;display:flex;justify-content:flex-end;flex-shrink:0;}
+  .toggle i{width:24px;height:24px;border-radius:50%;background:#fff;display:block;}
+  .seg{display:flex;height:44px;background:var(--panel);border-radius:12px;padding:3px;flex-shrink:0;}
+  .seg span{padding:0 14px;display:flex;align-items:center;font-size:13px;font-weight:700;color:var(--muted);border-radius:9px;}
+  .seg span.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+  /* ---------- S6 share ---------- */
+  .hero{padding-top:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;}
+  .checkc{width:76px;height:76px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 12px 30px rgba(14,138,95,.35);}
+  .linkchip{display:flex;align-items:center;gap:9px;height:52px;border-radius:14px;background:var(--panel);border:1px solid var(--line-2);padding:0 8px 0 13px;}
+  .linkchip .lk{flex:1;font-size:13.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .copybtn{height:38px;padding:0 14px;border-radius:10px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;}
+  .sharerow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .shareb{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:11px;font-weight:700;}
+
+  /* ---------- S7 dashboard ---------- */
+  .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .stat{padding:13px 12px;}
+  .stat .sv{font-family:var(--disp);font-size:22px;font-weight:800;letter-spacing:-.02em;}
+  .stat .sl{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600;line-height:1.25;}
+  .bars{display:flex;align-items:flex-end;gap:7px;height:88px;padding:8px 2px 0;}
+  .bars .bar{flex:1;border-radius:5px 5px 0 0;background:var(--blue-wash);position:relative;}
+  .bars .bar i{position:absolute;inset:auto 0 0 0;border-radius:5px 5px 0 0;background:linear-gradient(var(--blue),#3f8bff);}
+  .insight{background:var(--ink);border-radius:18px;padding:15px;color:#fff;display:flex;gap:12px;align-items:flex-start;}
+  .insight .ii{width:40px;height:40px;border-radius:12px;background:rgba(247,166,0,.2);color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  .hint{position:fixed;bottom:18px;left:0;right:0;text-align:center;color:rgba(255,255,255,.5);font-size:12px;font-weight:600;z-index:5;}
+  svg{display:block;}
+</style>
+
+<div id="stageWrap"><div id="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="glass">
+      <div class="status"><span>9:41</span><span class="r">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4" y="5" width="3" height="6" rx="1"/><rect x="8" y="3" width="3" height="8" rx="1"/><rect x="12" y="0" width="3" height="11" rx="1"/></svg>
+        <svg width="22" height="11" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="19" height="10" rx="3" stroke="currentColor" stroke-width="1.2" opacity=".5"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+      </span></div>
+
+      <div class="viewport">
+
+        <!-- ============ S1 HOME ============ -->
+        <section class="screen active" id="s-home">
+          <div class="head">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;">
+              <span style="font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:-.02em;">Trip<span style="color:var(--coral)">Makers</span></span>
+            </div>
+            <div class="iconbtn" style="background:var(--surface);border:1px solid var(--line);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
+            <div style="width:38px;height:38px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">SK</div>
+          </div>
+          <div class="body">
+            <div class="earn tap" data-goto="s-dash">
+              <div class="coin"></div>
+              <div class="lbl">MMT Cash earned</div>
+              <div class="big num">&#8377;58,840</div>
+              <div class="sub"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg> +&#8377;12,400 this month</div>
+            </div>
+
+            <button class="btn tap" data-goto="s-choose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Create a TripStory</button>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
+              <div class="eyebrow">Your TripStories</div>
+              <span style="font-size:12.5px;font-weight:700;color:var(--blue);">See all</span>
+            </div>
+
+            <div class="card storycard tap" data-goto="s-dash">
+              <div class="thumb"><svg viewBox="0 0 56 56" width="56" height="56"><rect width="56" height="56" fill="#16456f"/><circle cx="43" cy="14" r="7" fill="#f7a600"/><path d="M0 34 L14 24 L24 30 L36 21 L48 31 L56 27 L56 56 L0 56Z" fill="#0a2d52"/><rect y="40" width="56" height="16" fill="#0d6e8c"/><path d="M11 46h13l-2 5h-9z" fill="#fff"/></svg></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:800;">Monaco Escape</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:3px;">5 days &middot; 214 booked</div>
+                <span class="badge live" style="margin-top:6px;">LIVE</span>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--muted-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+
+            <div class="card storycard tap" data-goto="s-build">
+              <div class="thumb"><svg viewBox="0 0 56 56" width="56" height="56"><rect width="56" height="56" fill="#1c3357"/><path d="M0 40 L20 18 L34 33 L56 14 L56 56 L0 56Z" fill="#2b4a74"/><path d="M20 18l6 6-6 3-5-4z" fill="#dce8f7"/></svg></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:800;">Bali Reset</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:3px;">4 days &middot; last edited 2d ago</div>
+                <span class="badge draft" style="margin-top:6px;">DRAFT</span>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--muted-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="tabbar">
+            <button class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg>Home</button>
+            <button class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg>Stories</button>
+            <button class="tab" data-goto="s-choose"><span class="fab"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <button class="tab" data-goto="s-dash"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 16v-5M12 16V8M17 16v-3"/></svg>Earnings</button>
+            <button class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3.1-5.4 7-5.4s7 2 7 5.4"/></svg>Profile</button>
+          </div>
+        </section>
+
+        <!-- ============ S2 CHOOSE ============ -->
+        <section class="screen" id="s-choose">
+          <div class="head">
+            <button class="iconbtn" data-goto="s-home" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="stepper">
+              <div class="st on"><span class="sd">1</span><span class="sl">Create</span></div><div class="bar"></div>
+              <div class="st"><span class="sd">2</span></div><div class="bar"></div>
+              <div class="st"><span class="sd">3</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <div style="margin-top:6px;">
+              <h1 style="font-family:var(--disp);font-size:26px;font-weight:800;letter-spacing:-.02em;">How do you want to start?</h1>
+              <p style="font-size:13.5px;color:var(--muted);margin-top:6px;line-height:1.45;">Pick the easy way. You can change everything later.</p>
+            </div>
+
+            <div class="card choice tap" data-goto="s-build">
+              <span class="rec">EASIEST</span>
+              <div class="ci" style="background:var(--blue-wash);color:var(--blue-ink);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M4 12h16M4 18h7"/><path d="M17 4l3 3-3 3"/></svg></div>
+              <div><h3>Import a trip you booked</h3><p>We turn a past MMT booking into a ready-made itinerary. Just tidy it up.</p></div>
+            </div>
+
+            <div class="card choice tap" data-goto="s-build">
+              <div class="ci" style="background:var(--coral-wash);color:var(--coral-ink);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+              <div><h3>Start from scratch</h3><p>Add flights, stays and activities yourself, day by day.</p></div>
+            </div>
+
+            <div style="display:flex;gap:9px;align-items:center;background:var(--amber-wash);border-radius:14px;padding:12px 13px;margin-top:2px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+              <span style="font-size:12px;color:var(--amber-ink);font-weight:600;line-height:1.4;">Importing keeps your real prices &amp; times, so it stays bookable.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ S3 BUILD ============ -->
+        <section class="screen" id="s-build">
+          <div class="head">
+            <button class="iconbtn" data-goto="s-choose" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="stepper">
+              <div class="st done"><span class="sd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></div><div class="bar" style="background:var(--green)"></div>
+              <div class="st on"><span class="sd">2</span><span class="sl">Build</span></div><div class="bar"></div>
+              <div class="st"><span class="sd">3</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <div class="eyebrow" style="margin-bottom:4px;">Editing</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <h1 style="font-family:var(--disp);font-size:23px;font-weight:800;letter-spacing:-.02em;">Monaco Escape</h1>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+              </div>
+            </div>
+
+            <div class="daychips">
+              <div class="daychip">Day 1</div>
+              <div class="daychip on">Day 2</div>
+              <div class="daychip">Day 3</div>
+              <div class="daychip">Day 4</div>
+              <div class="daychip">Day 5</div>
+              <div class="daychip add"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="titem"><span class="tm">10:30</span><div class="card tc"><span class="ti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.2 5-5 2.2 2.2-5z"/></svg></span><div class="tt"><b>Old Town walking tour</b><span>2 hrs</span></div><span class="tp">&#8377;4,350</span><span class="grab"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="1.4"/><circle cx="15" cy="7" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="17" r="1.4"/><circle cx="15" cy="17" r="1.4"/></svg></span></div></div>
+              <div class="titem"><span class="tm">14:30</span><div class="card tc"><span class="ti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.3"/></svg></span><div class="tt"><b>Larvotto Beach</b><span>Free &middot; 2 hrs</span></div><span class="tp" style="color:var(--muted)">Free</span><span class="grab"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="1.4"/><circle cx="15" cy="7" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="17" r="1.4"/><circle cx="15" cy="17" r="1.4"/></svg></span></div></div>
+              <div class="titem"><span class="tm">19:30</span><div class="card tc" style="border-color:#f3c7bb;"><span class="ti" style="background:var(--coral-wash);color:var(--coral-ink)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13l20-7-7 20-3-9-10-4z"/></svg></span><div class="tt"><b>Sunset catamaran</b><span style="color:var(--coral-ink);font-weight:700;">Must-do</span></div><span class="tp">&#8377;9,080</span><span class="grab"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="1.4"/><circle cx="15" cy="7" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="17" r="1.4"/><circle cx="15" cy="17" r="1.4"/></svg></span></div></div>
+            </div>
+
+            <button class="addrow tap" data-sheet="open"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add to Day 2</button>
+          </div>
+          <div class="sticky"><button class="btn tap" data-goto="s-publish">Next: Publish <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+        </section>
+
+        <!-- ============ S5 PUBLISH ============ -->
+        <section class="screen" id="s-publish">
+          <div class="head">
+            <button class="iconbtn" data-goto="s-build" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="stepper">
+              <div class="st done"><span class="sd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></div><div class="bar" style="background:var(--green)"></div>
+              <div class="st done"><span class="sd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></div><div class="bar" style="background:var(--green)"></div>
+              <div class="st on"><span class="sd">3</span><span class="sl">Publish</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <div class="cover">
+              <svg viewBox="0 0 356 150" width="100%" height="150" preserveAspectRatio="none"><rect width="356" height="150" fill="#16456f"/><rect width="356" height="58" fill="#1d5480"/><circle cx="286" cy="32" r="15" fill="#f7a600"/><path d="M0 92 L44 60 L80 80 L120 54 L168 86 L214 60 L260 88 L300 66 L356 92 L356 150 L0 150Z" fill="#0a2d52"/><rect y="106" width="356" height="44" fill="#0d6e8c"/><path d="M40 122h42l-7 10H50z" fill="#fff"/><path d="M60 122v-13l18 13z" fill="#dce8f7"/></svg>
+              <button class="cbtn tap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M3 17l5-4 4 3 3-2 6 5"/></svg> Change cover</button>
+            </div>
+
+            <div class="field"><label>Title</label><div class="input">Sidak&rsquo;s 5-Day Monaco Escape</div></div>
+
+            <div class="card row">
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.02em;">STARTING PRICE &middot; AUTO</div>
+                <div style="font-family:var(--disp);font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:2px;">&#8377;1,46,820 <span style="font-size:12px;font-weight:600;color:var(--muted);">/ person</span></div>
+              </div>
+              <span class="badge live">LIVE PRICES</span>
+            </div>
+
+            <div class="card row">
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:800;">Paid partnership</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">The stay was hosted &middot; shown to viewers</div>
+              </div>
+              <div class="toggle"><i></i></div>
+            </div>
+
+            <div class="card row">
+              <div style="flex:1;font-size:14px;font-weight:800;">Who can see it</div>
+              <div class="seg"><span class="on">Public</span><span>Unlisted</span></div>
+            </div>
+          </div>
+          <div class="sticky"><button class="btn coral tap" data-goto="s-share"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Publish TripStory</button></div>
+        </section>
+
+        <!-- ============ S6 SHARE ============ -->
+        <section class="screen" id="s-share">
+          <div class="head"><button class="iconbtn" data-goto="s-home" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+          <div class="body">
+            <div class="hero">
+              <div class="checkc"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+              <h1 style="font-family:var(--disp);font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:4px;">You&rsquo;re live!</h1>
+              <p style="font-size:13.5px;color:var(--muted);line-height:1.45;max-width:260px;">Drop this link in your reel. Every view, edit and booking is tracked to you.</p>
+            </div>
+
+            <div class="linkchip">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              <span class="lk">mmt.travel/sidak-monaco-5d</span>
+              <button class="copybtn tap">Copy</button>
+            </div>
+
+            <div class="eyebrow" style="margin-top:2px;">Share to</div>
+            <div class="sharerow">
+              <div class="shareb tap"><span style="color:var(--coral)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M10 9l5 3-5 3V9z"/></svg></span>Reel</div>
+              <div class="shareb tap"><span style="color:var(--coral)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" stroke-dasharray="4 3"/><circle cx="12" cy="12" r="3.2"/></svg></span>Story</div>
+              <div class="shareb tap"><span style="color:var(--green)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-13.3 7.9L3 21l1.2-4.6A9 9 0 1 1 21 12z"/></svg></span>WhatsApp</div>
+              <div class="shareb tap"><span style="color:var(--ink)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></span>More</div>
+            </div>
+
+            <div style="display:flex;gap:11px;align-items:center;background:var(--green-wash);border-radius:16px;padding:14px;">
+              <span style="width:38px;height:38px;border-radius:12px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M15.5 8a3 3 0 0 0-3.5-2c-1.9 0-3 1-3 2.2 0 2.9 6.5 1.7 6.5 5 0 1.4-1.3 2.6-3.5 2.6a3.4 3.4 0 0 1-3.4-2.1"/></svg></span>
+              <div><div style="font-size:13.5px;font-weight:800;color:var(--green-ink);">You earn MMT Cash</div><div style="font-size:11.5px;color:var(--green-ink);line-height:1.4;margin-top:2px;">Paid when a viewer books &mdash; on what they actually travel.</div></div>
+            </div>
+          </div>
+          <div class="sticky"><button class="btn dark tap" data-goto="s-dash">View dashboard</button></div>
+        </section>
+
+        <!-- ============ S7 DASHBOARD ============ -->
+        <section class="screen" id="s-dash">
+          <div class="head">
+            <button class="iconbtn" data-goto="s-home" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="htitle" style="flex:1;">Monaco Escape</div>
+            <span class="badge live">LIVE</span>
+          </div>
+          <div class="body">
+            <div class="stat3">
+              <div class="card stat"><div class="sv num">28.9k</div><div class="sl">Opens</div></div>
+              <div class="card stat"><div class="sv num" style="color:var(--blue)">214</div><div class="sl">Booked</div></div>
+              <div class="card stat"><div class="sv num" style="color:var(--coral)">&#8377;58.8k</div><div class="sl">MMT Cash</div></div>
+            </div>
+
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:13.5px;font-weight:800;">Bookings this week</div>
+                <div style="font-size:11.5px;color:var(--green-ink);font-weight:700;">+18%</div>
+              </div>
+              <div class="bars">
+                <div class="bar" style="height:42%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:58%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:36%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:72%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:64%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:88%"><i style="height:100%"></i></div>
+                <div class="bar" style="height:100%"><i style="height:100%"></i></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-2);font-weight:700;padding:0 2px;">
+                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+              </div>
+            </div>
+
+            <div class="insight tap" data-goto="s-choose">
+              <span class="ii"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
+              <div style="flex:1;">
+                <div style="font-size:13.5px;font-weight:800;">42% swapped to a cheaper hotel</div>
+                <p style="font-size:11.5px;color:#A9BDD8;line-height:1.4;margin-top:3px;">Make a budget version of this trip to catch them.</p>
+                <span style="display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;font-weight:800;color:var(--amber);">Create budget version <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              </div>
+            </div>
+
+            <div class="card row" style="padding:14px;">
+              <div style="flex:1;"><div style="font-size:13px;font-weight:800;">Next payout</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px;">&#8377;12,400 &middot; after travellers return</div></div>
+              <span style="font-size:12.5px;font-weight:800;color:var(--blue);">Details</span>
+            </div>
+          </div>
+
+          <div class="tabbar">
+            <button class="tab" data-goto="s-home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg>Home</button>
+            <button class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg>Stories</button>
+            <button class="tab" data-goto="s-choose"><span class="fab"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+            <button class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 16v-5M12 16V8M17 16v-3"/></svg>Earnings</button>
+            <button class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3.1-5.4 7-5.4s7 2 7 5.4"/></svg>Profile</button>
+          </div>
+        </section>
+
+      </div><!-- /viewport -->
+
+      <!-- add-item sheet -->
+      <div class="scrim" id="scrim" data-sheet="close"></div>
+      <div class="sheet" id="sheet">
+        <div class="grab"></div>
+        <div style="display:flex;align-items:center;margin-bottom:12px;">
+          <div style="font-family:var(--disp);font-size:18px;font-weight:800;flex:1;">Add to Day 2</div>
+          <button class="iconbtn" data-sheet="close" style="background:var(--panel);" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="typegrid">
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13l20-7-7 20-3-9-10-4z"/></svg></span><span>Flight</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h20M4 18v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6M7 10V7h10v3"/></svg></span><span>Hotel</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="6" rx="2"/><path d="M6 10l2-4h8l2 4"/><circle cx="7.5" cy="18" r="1.4"/><circle cx="16.5" cy="18" r="1.4"/></svg></span><span>Cab</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M9 20l1.6-3.4M15 20l-1.6-3.4"/></svg></span><span>Train</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.2 5-5 2.2 2.2-5z"/></svg></span><span>Activity</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-1.6 1-2.4 2.4-2.4 4.4 0 2 .8 3.4 2.4 4.4M17 12v9"/></svg></span><span>Food</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.3"/></svg></span><span>Place</span></button>
+          <button class="type tap" data-sheet="close"><span class="ty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>Free time</span></button>
+        </div>
+      </div>
+
+    </div><!-- /glass -->
+  </div><!-- /phone -->
+</div></div>
+
+<div class="hint" id="hint">Tap the buttons to move through the flow</div>
+
+<script>
+  var stage = document.getElementById('stage');
+  function fit(){
+    var s = Math.min(window.innerWidth/430, window.innerHeight/850);
+    s = Math.min(s, 1.05);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+
+  var screens = document.querySelectorAll('.screen');
+  function show(id){
+    screens.forEach(function(s){ s.classList.toggle('active', s.id===id); });
+    var vp = document.querySelector('#'+id+' .body'); if(vp) vp.scrollTop = 0;
+  }
+  var sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');
+  function setSheet(open){ sheet.classList.toggle('show', open); scrim.classList.toggle('show', open); }
+
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('[data-goto]');
+    if(g){ show(g.getAttribute('data-goto')); return; }
+    var sh = e.target.closest('[data-sheet]');
+    if(sh){ setSheet(sh.getAttribute('data-sheet')==='open'); }
+  });
+
+  // fade the hint after first interaction
+  document.addEventListener('click', function once(){
+    var h=document.getElementById('hint'); if(h){ h.style.transition='opacity .4s'; h.style.opacity='0'; }
+    document.removeEventListener('click', once);
+  });
+</script>
+
+</body></html>
